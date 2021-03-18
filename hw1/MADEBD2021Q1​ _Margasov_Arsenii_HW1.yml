@@ -1,0 +1,67 @@
+beginner.how_many_items_in_hdfs:
+    stdin: 9
+intermediate.hdfs_list_recursively:
+    stdin: hdfs dfs -ls -R /data/wiki
+intermediate.hdfs_list_recursively_human_readable:
+    stdin: hdfs dfs -ls -R -h /data/wiki
+intermediate.hdfs_file_replication_factor:
+    stdin: 3
+intermediate.hdfs_folder_replication_factor:
+    stdin: 0
+intermediate.hdfs_describe_size:
+    stdin: actual
+intermediate.hdfs_cumulative_size:
+    stdin: hdfs dfs -du -s /data/wiki
+intermediate.hdfs_create_folder:
+    stdin: hdfs dfs -mkdir a.margasov
+intermediate.hdfs_create_nested_folder:
+    stdin: hdfs dfs -mkdir -p a.margasov/a/b/c
+intermediate.hdfs_remove_nested_folders:
+    stdin: hdfs dfs -rm -r a.margasov/*
+intermediate.hdfs_trash_behavior:
+    stdin: hdfs dfs -rm -skipTrash
+intermediate.hdfs_create_empty_file:
+    stdin: hdfs dfs -touchz a.margasov/empty_file
+intermediate.hdfs_create_small_file:
+    stdin: hdfs dfs -put margasov_small_random a.margasov
+intermediate.hdfs_output_file:
+    stdin: hdfs dfs -cat a.margasov/margasov_small_random
+intermediate.hdfs_output_file_end:
+    stdin: hdfs dfs -tail a.margasov/margasov_small_random
+intermediate.hdfs_output_file_start:
+    stdin: hdfs dfs -cat a.margasov/margasov_small_random | head -n 2
+intermediate.hdfs_tail_vs_unix_tail:
+    stdin: tail -c 1024 a.margasov/margasov_small_random
+intermediate.hdfs_copy_file:
+    stdin: hdfs dfs -cp a.margasov/margasov_small_random a.margasov/margasov_small_random_copy
+intermediate.hdfs_move_file:
+    stdin: |-
+        hdfs dfs -mkdir a.margasov/tmp_folder
+        hdfs dfs -mv a.margasov/margasov_small_random_copy a.margasov/tmp_folder/margasov_small_random_copy
+intermediate.hdfs_download_and_concatenate:
+    stdin: hdfs dfs -getmerge a.margasov/margasov_small_random a.margasov/tmp_folder/margasov_small_random_copy ./a_margasov_merged.txt
+advanced.hdfs_set_file_replication:
+    stdin: hdfs dfs -setrep -w 2 a.margasov/margasov_small_random
+advanced.hdfs_get_files_and_block:
+    stdin: hdfs fsck a.margasov/margasov_small_random -files -blocks -locations
+advanced.hdfs_get_block_information:
+    stdin: hdfs fsck a.margasov/margasov_small_random -blockId blk_1079538534
+advanced.hdfs_dfs_architecture:
+    stdin: |-
+        sudo -i -u hdfsuser
+        hdfs fsck hdfs://brain-master.bigdatateam.org:8020/user/mail_2021q1/a.margasov/margasov_small_random -files -blocks -locations
+        hdfs fsck hdfs://brain-master.bigdatateam.org:8020/user/mail_2021q1/a.margasov/margasov_small_random -blockId blk_1079538534
+        hdfs dfs -cat /data/namenode_example/current/fsimage_0000000000030725661 | head
+        hdfs dfs -cat /data/namenode_example/current/edits_0000000000030725662-0000000000030779867 | head
+advanced.webhdfs_read_100B:
+    stdin: curl "http://brain-node3.bigdatateam.org:50075/webhdfs/v1/user/mail_2021q1/a.margasov/margasov_small_random?op=OPEN&user.name=mail_2021q1&namenoderpcaddress=brain-master.bigdatateam.org:8020&length=100&offset=0"
+advanced.webhdfs_curl_follow_redirects:
+    stdin: curl -L "http://brain-master:50070/webhdfs/v1/user/mail_2021q1/a.margasov/margasov_small_random?op=OPEN&length=100&user.name=mail_2021q1"
+advanced.webhdfs_get_file_detailed_information:
+    stdin: curl "http://brain-master:50070/webhdfs/v1/user/mail_2021q1/a.margasov/margasov_small_random?op=GETFILESTATUS&user.name=mail_2021q1"
+advanced.webhdfs_change_file_replication:
+    stdin: curl -i -X PUT "http://brain-master:50070/webhdfs/v1/user/mail_2021q1/a.margasov/margasov_small_random?op=SETREPLICATION&replication=2&user.name=mail_2021q1"
+advanced.webhdfs_append_to_file:
+    stdin: |-
+        curl -i -X POST "http://brain-master:50070/webhdfs/v1/user/mail_2021q1/a.margasov/margasov_small_random?op=APPEND&user.name=mail_2021q1"
+        curl -i -X POST -T margasov_small_random_2_append "http://brain-node3.bigdatateam.org:50075/webhdfs/v1/user/mail_2021q1/a.margasov/margasov_small_random?op=APPEND&user.name=mail_2021q1&namenoderpcaddress=brain-master.bigdatateam.org:8020"
